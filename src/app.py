@@ -13,6 +13,7 @@
 # 16/03/2026  Added PredictionResponse model to document output contract
 # 16/03/2026  Improved health endpoint to report model status
 # 16/03/2026  Added try/except around model prediction for clean error handling
+# 18/03/2026  Aligned API schema with all Part 1 features (kw_, has_, custom)
 #
 # Usage: uvicorn src.app:app --host 0.0.0.0 --port 8000
 
@@ -52,20 +53,37 @@ app = FastAPI(title="ML Inference Service", lifespan=lifespan)
 
 # Input validation: proper types and constraints so bad data gets rejected
 # before it reaches the model. In production, garbage in = garbage out.
-# Field names match the brief's expected input format.
-# Internally the model receives them positionally so names don't affect predictions.
+# Accepts all features produced by the Part 1 pipeline (training_set.csv).
 class CustomerFeatures(BaseModel):
     # Included so predictions can be traced back to a customer.
     customer_id: str
+
+    # Core aggregation features
     num_transactions: int = Field(0, ge=0, description="Number of transactions")
     total_debit: float = Field(0.0, le=0, description="Sum of debits (negative)")
     total_credit: float = Field(0.0, ge=0, description="Sum of credits (positive)")
     avg_amount: float = Field(0.0, description="Mean transaction amount")
+
+    # Keyword flags (used by the current pre-trained model)
+    kw_rent: int = Field(0, ge=0, le=1)
+    kw_netflix: int = Field(0, ge=0, le=1)
+    kw_tesco: int = Field(0, ge=0, le=1)
+    kw_payroll: int = Field(0, ge=0, le=1)
+    kw_bonus: int = Field(0, ge=0, le=1)
+
+    # Merchant category flags (not used by current model, available for retraining)
+    has_salary: int = Field(0, ge=0, le=1)
     has_rent: int = Field(0, ge=0, le=1)
-    has_netflix: int = Field(0, ge=0, le=1)
-    has_tesco: int = Field(0, ge=0, le=1)
-    has_payroll: int = Field(0, ge=0, le=1)
+    has_grocery: int = Field(0, ge=0, le=1)
+    has_streaming: int = Field(0, ge=0, le=1)
+    has_gambling: int = Field(0, ge=0, le=1)
+    has_transfer: int = Field(0, ge=0, le=1)
     has_bonus: int = Field(0, ge=0, le=1)
+
+    # Custom features (not used by current model, available for retraining)
+    debit_credit_ratio: float = Field(0.0, ge=0)
+    txn_amount_std: float = Field(0.0, ge=0)
+    num_unique_merchants: int = Field(0, ge=0)
 
 # Response model documents the exact output contract.
 # FastAPI also uses this to generate accurate API docs automatically.
@@ -90,16 +108,19 @@ def predict(payload: CustomerFeatures):
 
     start = time.perf_counter()
 
+    # The pre-trained model expects these 9 features in this exact order.
+    # Category flags and custom features are accepted by the API but not
+    # passed to the current model. They would be used after retraining.
     X = [[
         payload.num_transactions,
         payload.total_debit,
         payload.total_credit,
         payload.avg_amount,
-        payload.has_rent,
-        payload.has_netflix,
-        payload.has_tesco,
-        payload.has_payroll,
-        payload.has_bonus,
+        payload.kw_rent,
+        payload.kw_netflix,
+        payload.kw_tesco,
+        payload.kw_payroll,
+        payload.kw_bonus,
     ]]
     # Catch model errors and return a clean message.
     # The actual error is logged for debugging but not exposed to the caller.
