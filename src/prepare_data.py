@@ -113,17 +113,28 @@ def clean_transactions(tx: pd.DataFrame) -> pd.DataFrame:
     else:
         print("Duplicates: no duplicate transaction IDs found ✓")
 
-    # Flag amount outliers using the IQR method
-    # We log them but don't remove them because in financial data, large values
+    # Flag amount outliers using the IQR method, split by debits and credits.
+    # Running IQR on the mixed column would be misleading because debits are
+    # negative and credits are positive. We check each side separately.
+    # We log but don't remove them because in financial data, large values
     # (e.g. salary, rent) are legitimate. Removing them would destroy real signal.
-    q1 = df["amount"].quantile(0.25)
-    q3 = df["amount"].quantile(0.75)
-    iqr = q3 - q1
-    outlier_mask = (df["amount"] < q1 - 1.5 * iqr) | (df["amount"] > q3 + 1.5 * iqr)
-    n_outliers = outlier_mask.sum()
-    if n_outliers > 0:
-        print(f"NOTE: {n_outliers} amount outlier(s) detected (1.5x IQR method) - kept in dataset")
-    else:
+    debits = df.loc[df["amount"] < 0, "amount"]
+    credits = df.loc[df["amount"] > 0, "amount"]
+    n_outliers = 0
+
+    for label, subset in [("debit", debits), ("credit", credits)]:
+        if len(subset) < 4:
+            continue
+        q1 = subset.quantile(0.25)
+        q3 = subset.quantile(0.75)
+        iqr = q3 - q1
+        mask = (subset < q1 - 1.5 * iqr) | (subset > q3 + 1.5 * iqr)
+        count = mask.sum()
+        if count > 0:
+            print(f"NOTE: {count} {label} outlier(s) detected (1.5x IQR) - kept in dataset")
+            n_outliers += count
+
+    if n_outliers == 0:
         print("Outliers: no amount outliers detected ✓")
 
     return df
