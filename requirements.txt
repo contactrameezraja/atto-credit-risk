@@ -1,6 +1,6 @@
 pandas>=2.0
 numpy>=1.24
-scikit-learn>=1.1
+scikit-learn>=1.1,<2.0  # model was trained on 1.1.3; ideally pin to ~=1.1 in production
 joblib>=1.2
 fastapi>=0.104
 uvicorn[standard]>=0.24
