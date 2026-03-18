@@ -1,0 +1,6 @@
+customer_id,num_transactions,total_debit,total_credit,avg_amount,kw_rent,kw_netflix,kw_tesco,kw_payroll,kw_bonus,has_salary,has_rent,has_grocery,has_streaming,has_gambling,has_transfer,has_bonus,debit_credit_ratio,txn_amount_std,num_unique_merchants,defaulted
+CUST_0001,3,-65.98,2500.0,811.34,0,1,1,1,0,1,0,1,1,0,0,0,0.0264,1462.48,3,0
+CUST_0002,2,-650.0,1800.0,575.0,1,0,0,1,0,1,1,0,0,0,0,0,0.3611,1732.41,2,1
+CUST_0003,2,-300.0,1200.0,450.0,0,0,0,0,0,0,0,0,0,0,0,0,0.25,1060.66,2,0
+CUST_0004,2,-400.0,900.0,250.0,1,0,0,1,0,1,1,0,0,0,0,0,0.4444,919.24,2,1
+CUST_0005,1,0.0,6500.0,6500.0,0,0,0,0,1,0,0,0,0,0,0,1,0.0,0.0,1,0
