@@ -173,7 +173,7 @@ Getting the feature names right across the three layers: the brief's expected fo
 
 ### 3. Production deployment (Azure, £500/month, <100ms, 1000 predictions/hour)
 
-With those constraints, here's what I'd do:
+With those constraints, the following is what i would recommend: 
 
 **Compute:** Azure Container Apps. It's cheaper than AKS for this traffic level and supports auto-scaling. A single container running the FastAPI app with 1 vCPU and 2GB RAM would handle 1000 predictions/hour easily. Logistic regression inference is microseconds, so the 100ms latency target is met comfortably. Cost would be roughly £30-50/month at this scale.
 
@@ -185,13 +185,15 @@ With those constraints, here's what I'd do:
 
 **Total estimated cost: ~£100-150/month**, well within the £500 budget. The remaining budget gives headroom for scaling or adding a staging environment.
 
+references: https://azure.microsoft.com/en-gb/pricing
+
 ### 4. How would you deploy the FastAPI service?
 
 1. Write a Dockerfile (Python 3.12 slim image, install requirements, copy src/ and artifacts/, run uvicorn)
 2. Build and push to Azure Container Registry
 3. Deploy to Azure Container Apps with a health check on `/health`
 4. Model artifact stored in Azure Blob Storage, downloaded at container startup
-5. CI/CD via GitHub Actions: push to main triggers build, test, and deploy
+5. CI/CD via GitHub Actions: push to main triggers build, test, and deploy.
 
 For model updates specifically, I'd version the model files in Blob Storage (e.g. `model_v1.joblib`, `model_v2.joblib`) and use an environment variable to control which version the service loads. This way you can roll back to a previous model without redeploying.
 
@@ -201,7 +203,7 @@ Pandas breaks down at scale. At millions of transactions per day, I'd rethink Pa
 
 - **Swap pandas for PySpark or DuckDB.** The aggregation logic (groupby, sum, mean, std) translates directly. DuckDB is a good middle ground since it runs on a single machine but handles much larger datasets than pandas.
 - **Partition the data.** Process transactions by date partition rather than loading everything into memory. The pipeline would read today's batch, not the entire history.
-- **Move to a proper orchestrator.** Azure Data Factory or Airflow to manage the pipeline, with retry logic, alerting, and data lineage tracking.
+- **Move to a orchestrator.** Azure Data Factory or Apache Airflow (scheduler) to manage the pipeline, with retry logic, alerting, and data lineage tracking.
 - **Pre-compute features incrementally.** Instead of re-aggregating from scratch every time, maintain a running feature store and update it with each new batch. This is much more efficient than full recomputation.
 - **Text processing at scale.** The regex-based cleaning is fine for thousands of rows but could be parallelised with Spark UDFs or run through a dedicated NLP service for millions.
 
@@ -213,13 +215,13 @@ Pandas breaks down at scale. At millions of transactions per day, I'd rethink Pa
 - **Feature drift:** Monitor the distributions of input features over time. If the average transaction count drops significantly, the incoming data may have changed shape.
 - **Latency (p50, p95, p99):** The 100ms requirement needs monitoring, not just testing. A p95 over 80ms is an early warning.
 - **Error rate:** Percentage of requests returning 4xx or 5xx. Spike means something is wrong with either input data quality or the model.
-- **Default rate (actual vs predicted):** Once you have ground truth (did the customer actually default after 90 days?), compare it to what the model predicted. This is the ultimate measure of model health.
+- **Default rate (actual vs predicted):** Onec we have ground truth (did the customer actually default after 90 days?), compare it to what the model predicted. This will be our measure of model health.
 
 **What could go wrong:**
 
 - **Model drift.** The economy changes, customer behaviour shifts, or a new type of fraud appears. The model was trained on historical patterns that may not hold. Regular retraining on fresh data is essential.
-- **Data drift.** A new transaction feed starts sending descriptions in a different format. The text processing breaks silently and the `has_*` features all become 0. The model still runs but its predictions are garbage.
-- **Class imbalance getting worse.** If the default rate drops from 12% to 2%, the model's threshold of 0.5 becomes wrong. You'd need to recalibrate.
+- **Data drift.** A new transaction feed starts sending descriptions in a different format. The text processing breaks silently and the `has_*` features all become 0. The model still runs but its predictions are not accuracte.
+- **Class imbalance getting worse.** If the default rate drops from 12% to 2%, the model's threshold of 0.5 becomes wrong. I would need to recalibrate.
 - **Stale model.** If nobody retrains the model for 6 months, it's making decisions on outdated patterns. There should be a scheduled retraining cadence with a holdout validation check before deploying a new version.
 - **Adversarial inputs.** In credit, customers or brokers can game the system if they know which features the model looks at. Monitoring for unusual patterns in input data helps catch this.
 
