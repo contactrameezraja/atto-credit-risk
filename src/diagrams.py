@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
+from pathlib import Path
 
 DARK = "#1E293B"
 BLUE = "#2563EB"
@@ -137,7 +138,7 @@ def pipeline_diagram():
             ha="center", fontsize=10, color=GREY, style="italic")
 
     fig.tight_layout()
-    out = "/home/claude/working/artifacts/diagram_pipeline_flow.png"
+    out = str(Path(__file__).resolve().parents[1] / "artifacts" / "diagram_pipeline_flow.png")
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=WHITE)
     plt.close(fig)
     print(f"Saved: {out}")
@@ -209,7 +210,7 @@ def project_structure_diagram():
             ha="center", fontsize=10, color=GREEN, fontweight="bold")
 
     fig.tight_layout()
-    out = "/home/claude/working/artifacts/diagram_project_structure.png"
+    out = str(Path(__file__).resolve().parents[1] / "artifacts" / "diagram_project_structure.png")
     fig.savefig(out, dpi=150, bbox_inches="tight", facecolor=WHITE)
     plt.close(fig)
     print(f"Saved: {out}")
