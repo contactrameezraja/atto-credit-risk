@@ -225,14 +225,8 @@ Pandas breaks down at scale. At millions of transactions per day, I'd rethink Pa
 
 ### 7. Use of AI tools
 
-I used Claude (Anthropic) as a development assistant throughout this task. Specifically:
+I used LLM (mainly Gemini) for double checking the Azure development strategy and cost estimates.
 
-- **Understanding the brief:** I used it to break down the requirements and identify gaps in the starter code before writing anything
-- **Code review:** After making each change, I discussed whether the approach was right and what edge cases to handle
-- **Feature ideas:** Discussed which custom features would be most relevant for credit risk and why
-- **Production architecture:** Talked through the Azure deployment strategy and cost estimates
-- **README drafting:** Used it to help structure and draft this documentation
-
-It was most helpful for thinking through production considerations (question 3-6) where having a sounding board for architecture decisions saved time. It occasionally tried to over-engineer things (building the whole project at once rather than fixing issues one at a time), but that was easy to redirect.
+It was most helpful for thinking through production considerations where having a sounding board for architecture decisions saved time. 
 
 I wrote all the final code myself and tested it locally on my machine before submitting.
