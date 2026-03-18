@@ -2,6 +2,8 @@
 
 A data engineering solution that processes raw transaction data and serves credit default predictions via a REST API. Built for the Atto Senior Data Engineer assessment.
 
+I really enjoyed this task, it was a good mix of data wrangling, API work, and thinking about production. If I had more time I would have liked to add a Dockerfile and a basic CI pipeline with GitHub Actions so the whole thing could be built, tested, and deployed in one push. I'd also retrain the model using the improved has_ category features instead of the flat kw_ keywords, and add a /predict/batch endpoint for scoring multiple customers in one call. Maybe even a small Streamlit dashboard so stakeholders could upload a CSV and see predictions without touching the API directly.
+
 ## Quick Start
 
 ```bash
