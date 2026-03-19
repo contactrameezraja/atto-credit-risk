@@ -179,6 +179,8 @@ Note: The pre-trained model produces near-zero probabilities for all customers, 
 - 11 tests in `tests/test_api.py` covering health, valid predictions, and input validation (422 on bad data)
  
 ## Part 3: Discussion
+
+**Note on the provided model:** The pre-trained model produces near-zero probabilities for all customers, including the two known defaulters. This is expected given it was trained on only 5 rows with 9 features (there isn't enough data for the logistic regression to learn meaningful coefficients). The API and pipeline are built to work with any retrained model dropped into `artifacts/model.joblib`.
  
 ### 1. What was most challenging?
  
