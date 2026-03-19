@@ -191,7 +191,7 @@ Getting the feature names right across the three layers: the brief's expected fo
  
 ### 3. Production deployment (Azure, £500/month, <100ms, 1000 predictions/hour)
  
-With those constraints, here's what I'd do:
+With those constraints, here's how to procede: 
  
 **Compute:** Azure Container Apps. It's cheaper than AKS for this traffic level and supports auto-scaling. A single container running the FastAPI app with 1 vCPU and 2GB RAM would handle 1000 predictions/hour easily. Logistic regression inference is microseconds, so the 100ms latency target is met comfortably. Cost would be roughly £30-50/month at this scale.
  
@@ -202,6 +202,8 @@ With those constraints, here's what I'd do:
 **Monitoring:** Azure Application Insights for request logging, latency tracking, and error rates. This is where the structured logging in the API pays off. Cost around £20-30/month.
  
 **Total estimated cost: ~£100-150/month**, well within the £500 budget. The remaining budget gives headroom for scaling or adding a staging environment.
+
+reference: https://azure.microsoft.com/en-gb/pricing/calculator/
  
 ### 4. How would you deploy the FastAPI service?
  
