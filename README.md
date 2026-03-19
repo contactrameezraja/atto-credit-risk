@@ -29,6 +29,7 @@ pytest tests/ -v
 ```
  
 Once the API is running, visit http://localhost:8000/docs for the interactive Swagger UI.
+**Note:** The pre-trained model was serialised with scikit-learn 1.1.3. Current versions of scikit-learn load it correctly but emit an `InconsistentVersionWarning`. This is expected and does not affect predictions. Pinning to 1.1.x would silence it, but 1.1.x cannot be built on Python 3.12+, so the warning is left in place. 
  
 ## Pipeline Flow
  
