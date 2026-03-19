@@ -240,6 +240,8 @@ Pandas breaks down at scale. At millions of transactions per day, I'd rethink Pa
 - **Class imbalance getting worse.** If the default rate drops from 12% to 2%, the model's threshold of 0.5 becomes wrong. You'd need to recalibrate.
 - **Stale model.** If nobody retrains the model for 6 months, it's making decisions on outdated patterns. There should be a scheduled retraining cadence with a holdout validation check before deploying a new version.
 - **Adversarial inputs.** In credit, customers or brokers can game the system if they know which features the model looks at. Monitoring for unusual patterns in input data helps catch this.
+- **No runbook or on-call documentation.** If the model starts returning bad predictions at 2am, whoever gets paged needs to know how to diagnose it: where the logs are, how to roll back to a previous model version, who owns the retraining pipeline. Without documented incident response procedures, a 10-minute fix becomes a 2-hour outage.
+- **Silent infrastructure failures.** The Blob Storage connection times out and the container starts with no model, or the feature pipeline job fails silently and the API serves predictions on stale data. These aren't model problems (they're plumbing problems) but they have the same effect on the customer. Health checks, pipeline alerting, and data freshness checks catch these before they reach production.
 
 ### 7. Use of AI tools
 
